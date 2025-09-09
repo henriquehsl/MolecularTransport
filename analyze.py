@@ -2,10 +2,61 @@
 """
 Analysis script for Poiseuille flow molecular dynamics simulation results.
 This script processes velocity profile data to calculate viscosity and create plots.
+
+Requirements:
+- Python 3
+- numpy 
+- matplotlib
+
+Install dependencies:
+    pip install numpy matplotlib
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import numpy as np
+    import matplotlib.pyplot as plt
+    PLOTTING_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: {e}")
+    print("Some analysis features require numpy and matplotlib.")
+    print("Install with: pip install numpy matplotlib")
+    PLOTTING_AVAILABLE = False
+    # Provide basic analysis without plotting
+    class np:
+        @staticmethod
+        def loadtxt(filename, comments='#'):
+            data = []
+            with open(filename, 'r') as f:
+                for line in f:
+                    if line.strip() and not line.startswith(comments):
+                        values = [float(x) for x in line.split()]
+                        data.append(values)
+            return data
+        
+        @staticmethod
+        def sum(x):
+            return sum(x)
+        
+        @staticmethod
+        def mean(x):
+            return sum(x) / len(x) if x else 0
+        
+        @staticmethod
+        def max(x):
+            return max(x) if x else 0
+        
+        @staticmethod
+        def abs(x):
+            return [abs(val) for val in x]
+        
+        @staticmethod
+        def diff(x):
+            return [x[i+1] - x[i] for i in range(len(x)-1)]
+        
+        @staticmethod
+        def argsort(x):
+            return sorted(range(len(x)), key=lambda i: x[i])
+
 import glob
 import sys
 import os
@@ -13,12 +64,17 @@ import os
 def read_velocity_profile(filename):
     """Read velocity profile data from file."""
     try:
-        data = np.loadtxt(filename, comments='#')
-        y_positions = data[:, 0]
-        velocities = data[:, 1]
+        if PLOTTING_AVAILABLE:
+            data = np.loadtxt(filename, comments='#')
+            y_positions = data[:, 0]
+            velocities = data[:, 1]
+        else:
+            data = np.loadtxt(filename, comments='#')
+            y_positions = [row[0] for row in data]
+            velocities = [row[1] for row in data]
         return y_positions, velocities
-    except:
-        print(f"Error reading file: {filename}")
+    except Exception as e:
+        print(f"Error reading file: {filename} - {e}")
         return None, None
 
 def calculate_viscosity_from_profile(y_positions, velocities, applied_force=0.1):
@@ -59,6 +115,10 @@ def calculate_viscosity_from_profile(y_positions, velocities, applied_force=0.1)
 
 def plot_velocity_profile(y_positions, velocities, step, output_dir='.'):
     """Create a plot of the velocity profile."""
+    if not PLOTTING_AVAILABLE:
+        print(f"Skipping plot for step {step} - matplotlib not available")
+        return None
+        
     plt.figure(figsize=(10, 6))
     plt.plot(y_positions, velocities, 'bo-', linewidth=2, markersize=4)
     plt.xlabel('Y Position')
@@ -127,34 +187,39 @@ def analyze_all_profiles():
     
     if len(steps) > 1:
         # Plot viscosity evolution
-        plt.figure(figsize=(12, 5))
-        
-        plt.subplot(1, 2, 1)
-        plt.plot(steps, viscosities, 'bo-', linewidth=2)
-        plt.xlabel('Simulation Step')
-        plt.ylabel('Viscosity')
-        plt.title('Viscosity Evolution')
-        plt.grid(True, alpha=0.3)
-        
-        plt.subplot(1, 2, 2)
-        plt.plot(steps, max_velocities, 'ro-', linewidth=2)
-        plt.xlabel('Simulation Step')
-        plt.ylabel('Maximum Velocity')
-        plt.title('Maximum Velocity Evolution')
-        plt.grid(True, alpha=0.3)
-        
-        plt.tight_layout()
-        plt.savefig('viscosity_evolution.png', dpi=150, bbox_inches='tight')
-        plt.close()
+        if PLOTTING_AVAILABLE:
+            plt.figure(figsize=(12, 5))
+            
+            plt.subplot(1, 2, 1)
+            plt.plot(steps, viscosities, 'bo-', linewidth=2)
+            plt.xlabel('Simulation Step')
+            plt.ylabel('Viscosity')
+            plt.title('Viscosity Evolution')
+            plt.grid(True, alpha=0.3)
+            
+            plt.subplot(1, 2, 2)
+            plt.plot(steps, max_velocities, 'ro-', linewidth=2)
+            plt.xlabel('Simulation Step')
+            plt.ylabel('Maximum Velocity')
+            plt.title('Maximum Velocity Evolution')
+            plt.grid(True, alpha=0.3)
+            
+            plt.tight_layout()
+            plt.savefig('viscosity_evolution.png', dpi=150, bbox_inches='tight')
+            plt.close()
         
         print(f"\nSummary:")
         print(f"Average viscosity: {np.mean(viscosities):.6f}")
         print(f"Final viscosity: {viscosities[-1]:.6f}")
         print(f"Final max velocity: {max_velocities[-1]:.6f}")
         
-        print(f"\nPlots generated:")
-        print(f"- velocity_profile_plot_*.png (individual profiles)")
-        print(f"- viscosity_evolution.png (time evolution)")
+        if PLOTTING_AVAILABLE:
+            print(f"\nPlots generated:")
+            print(f"- velocity_profile_plot_*.png (individual profiles)")
+            print(f"- viscosity_evolution.png (time evolution)")
+        else:
+            print(f"\nNote: Install numpy and matplotlib for plotting features")
+            print(f"Run: pip install numpy matplotlib")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

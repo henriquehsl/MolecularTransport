@@ -19,6 +19,8 @@ This repository contains C++ code for simulating viscosity in Poiseuille flow us
 ### Prerequisites
 - C++ compiler with C++11 support (g++, clang++)
 - Make utility
+- Python 3 (optional, for analysis tools)
+- numpy and matplotlib (optional, for plotting)
 
 ### Compilation
 ```bash
@@ -39,7 +41,13 @@ Or run directly:
 ```bash
 make debug     # Compile with debug flags
 make clean     # Remove build artifacts and output files
+make analyze   # Analyze velocity profiles (requires Python, numpy, matplotlib)
 make help      # Show available targets
+```
+
+**Note**: Analysis features require Python dependencies:
+```bash
+pip install numpy matplotlib
 ```
 
 ## Simulation Parameters
