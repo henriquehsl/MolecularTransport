@@ -1,0 +1,32 @@
+# Build artifacts
+poiseuille_flow
+*.o
+*.a
+*.so
+*.exe
+
+# Simulation output files
+output_*.xyz
+velocity_profile_*.dat
+velocity_profile_plot_*.png
+viscosity_evolution.png
+
+# Temporary files
+*.tmp
+*.log
+
+# Editor files
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
