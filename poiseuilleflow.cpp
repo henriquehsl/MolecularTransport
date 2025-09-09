@@ -1,3 +1,5 @@
+
+//Authored by Henrique Santos Lima
 #include <iostream>
 #include <vector>
 #include <random>
@@ -8,10 +10,7 @@
 #include <numeric>
 #include <iomanip>
 
-// --- Otimizações para a arquitetura Galaxy Book4 Ultra 9 com RTX 4070 (single-thread) ---
-// O código já é cache-friendly devido ao uso de std::vector para armazenamento contíguo.
-// Não há paralelismo de CPU (OpenMP) ou GPU (CUDA/SYCL) conforme solicitado.
-// Funções como KahanSum e o algoritmo de Verlet já são otimizações de precisão e estabilidade.
+
 
 // --- Struct Vector2D com operadores para simplificar as operações matemáticas ---
 struct Vector2D {
